@@ -189,7 +189,7 @@ func (m *Filter) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	r = nw.Msg
 	if r == nil {
-		return 1, fmt.Errorf("no answer received")
+		return dns.RcodeFormatError, fmt.Errorf("no answer received")
 	}
 
 	if m.Prefer != nil {
@@ -197,14 +197,19 @@ func (m *Filter) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	}
 
 	if m.BugosNxDomain != nil {
-		_, r = m.BugosNxDomain.filter(r)
+		var valid bool
+		valid, r = m.BugosNxDomain.filter(r)
+		if valid && rcode == dns.RcodeSuccess {
+			rcode = r.Rcode
+		}
 	}
 
 	err = w.WriteMsg(r)
 	if err != nil {
-		return 1, err
+		return dns.RcodeServerFailure, err
 	}
-	return 0, nil
+
+	return rcode, nil
 }
 
 func (m *Filter) AddCommand(cmd string, options []string) error {
@@ -266,9 +271,9 @@ func (m *Filter) AddBogusNxDomainHandler(options []string) error {
 		return nil
 	}
 
-	handle := m.BugosNxDomain.(*BogusNxDomain)
+	var handle *BogusNxDomain
 
-	if handle == nil {
+	if m.BugosNxDomain == nil {
 		handle = &BogusNxDomain{
 			ipv4Builder: nil,
 			ipv6Builder: nil,
@@ -276,6 +281,8 @@ func (m *Filter) AddBogusNxDomainHandler(options []string) error {
 			ipv6Set:     nil,
 		}
 		m.BugosNxDomain = handle
+	} else {
+		handle = m.BugosNxDomain.(*BogusNxDomain)
 	}
 
 	for _, opt := range options {
