@@ -50,6 +50,7 @@ jobs:
 
       - name: Test (Windows, no race)
         if: runner.os == 'Windows'
+        shell: bash
         run: go test -v -coverprofile=coverage.out -covermode=atomic ./...
 
       - name: Upload coverage artifact

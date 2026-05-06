@@ -28,7 +28,7 @@ type PreferIPv4 struct {
 func (f *PreferIPv4) filter(r *dns.Msg) (bool, *dns.Msg) {
 	hasIPv4 := false
 	hasIPv6 := false
-	var finalAnswer []dns.RR = []dns.RR{}
+	var finalAnswer = []dns.RR{}
 
 	for _, answer := range r.Answer {
 		if hasIPv4 && hasIPv6 {
@@ -65,7 +65,7 @@ type PreferIPv6 struct {
 func (f *PreferIPv6) filter(r *dns.Msg) (bool, *dns.Msg) {
 	hasIPv4 := false
 	hasIPv6 := false
-	var finalAnswer []dns.RR = []dns.RR{}
+	var finalAnswer = []dns.RR{}
 
 	for _, answer := range r.Answer {
 		if hasIPv4 && hasIPv6 {
@@ -118,7 +118,7 @@ func (f *BogusNxDomain) filter(r *dns.Msg) (bool, *dns.Msg) {
 
 	hasBogusNxDomain := false
 
-	var finalAnswer []dns.RR = []dns.RR{}
+	var finalAnswer = []dns.RR{}
 
 	for _, answer := range r.Answer {
 		switch answer.Header().Rrtype {
