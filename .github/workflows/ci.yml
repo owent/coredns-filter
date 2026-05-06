@@ -44,8 +44,13 @@ jobs:
       - name: Vet
         run: go vet ./...
 
-      - name: Test
+      - name: Test (with race detector)
+        if: runner.os != 'Windows'
         run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Test (Windows, no race)
+        if: runner.os == 'Windows'
+        run: go test -v -coverprofile=coverage.out -covermode=atomic ./...
 
       - name: Upload coverage artifact
         if: matrix.os == 'ubuntu-latest'

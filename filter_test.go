@@ -1,9 +1,8 @@
 package coredns_filter
 
 import (
+	"context"
 	"testing"
-
-	"golang.org/x/net/context"
 
 	"github.com/coredns/coredns/plugin/pkg/dnstest"
 	"github.com/coredns/coredns/plugin/test"
@@ -29,7 +28,9 @@ func (h *testHandler) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns
 	ret.SetReply(r)
 	ret.Answer = h.answers
 	ret.Rcode = h.rcode
-	w.WriteMsg(ret)
+	if err := w.WriteMsg(ret); err != nil {
+		return dns.RcodeServerFailure, err
+	}
 	return 0, nil
 }
 
